@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Cargas</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(90deg, 
+        #FCFFC1 0%, 
+        #FFE893 33%, 
+        #FBB4A5 66%, 
+        #FB9EC6 100%);
+      color: #000;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    body.dark {
+      background: linear-gradient(90deg, 
+        #180161 0%, 
+        #4F1787 33%, 
+        #EB3678 66%, 
+        #FB773C 100%);
+      color: #fff;
+    }
+
+    .theme-switch {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .switch-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+      cursor: pointer;
+      width: 70px;
+      height: 34px;
+      position: relative;
+    }
+
+    .switch-label input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .switch {
+      position: relative;
+      flex: 1;
+      height: 34px;
+      background: #ccc;
+      border-radius: 34px;
+      transition: background 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      box-sizing: border-box;
+    }
+
+    .switch .icon {
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .switch .sun {
+      stroke: #FDB813;
+    }
+
+    .switch .moon {
+      stroke: #666;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.3s;
+      box-shadow: 0 0 6px rgba(0,0,0,0.15);
+      z-index: 2;
+    }
+
+    .switch-label input:checked + .switch {
+      background: #7B4EFF;
+    }
+
+    .switch-label input:checked + .switch .moon {
+      stroke: #fff;
+    }
+
+    .switch-label input:checked + .switch .sun {
+      stroke: #999;
+    }
+
+    .switch-label input:checked + .switch::after {
+      left: 39px;
+    }
+
+    .glass {
+      max-width: 600px;
+      margin: 100px auto;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: background 0.5s, color 0.5s;
+      z-index: 1;
+      position: relative;
+    }
+
+    body.dark .glass {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --btn-bg-light: #7B4EFF;
+      --btn-glow-light: rgba(123, 78, 255, 0.7);
+      --btn-glow-light-2: rgba(180, 160, 255, 0.4);
+
+      --btn-bg-dark: #5A2DB0;
+      --btn-glow-dark: rgba(90, 45, 176, 0.9);
+      --btn-glow-dark-2: rgba(180, 80, 255, 0.7);
+    }
+
+    button {
+      background: var(--btn-bg-light);
+      color: white;
+      cursor: pointer;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      box-shadow:
+        0 0 8px 2px var(--btn-glow-light),
+        0 0 20px 5px var(--btn-glow-light-2);
+      animation: glow-light 2.5s infinite alternate;
+      transition: background 0.5s, box-shadow 0.5s;
+      position: relative;
+      z-index: 1;
+    }
+
+    body.dark button {
+      background: var(--btn-bg-dark);
+      box-shadow:
+        0 0 8px 2px var(--btn-glow-dark),
+        0 0 25px 6px var(--btn-glow-dark-2);
+      animation: glow-dark 2.5s infinite alternate;
+    }
+
+    button:hover {
+      box-shadow:
+        0 0 12px 3px var(--btn-glow-light),
+        0 0 30px 8px var(--btn-glow-light-2);
+      animation: glow-light 1.5s infinite alternate;
+    }
+
+    body.dark button:hover {
+      box-shadow:
+        0 0 15px 4px var(--btn-glow-dark),
+        0 0 35px 10px var(--btn-glow-dark-2);
+      animation: glow-dark 1.5s infinite alternate;
+    }
+
+    @keyframes glow-light {
+      from {
+        box-shadow:
+          0 0 8px 2px var(--btn-glow-light),
+          0 0 20px 5px var(--btn-glow-light-2);
+      }
+      to {
+        box-shadow:
+          0 0 15px 5px var(--btn-glow-light),
+          0 0 35px 10px var(--btn-glow-light-2);
+      }
+    }
+
+    @keyframes glow-dark {
+      from {
+        box-shadow:
+          0 0 8px 2px var(--btn-glow-dark),
+          0 0 25px 6px var(--btn-glow-dark-2);
+      }
+      to {
+        box-shadow:
+          0 0 15px 5px var(--btn-glow-dark),
+          0 0 35px 10px var(--btn-glow-dark-2);
+      }
+    }
+
+    #erro {
+      color: red;
+      font-weight: bold;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-size: 18px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-switch">
+    <label class="switch-label">
+      <input type="checkbox" id="toggle-theme" />
+      <span class="switch">
+        <svg class="icon sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FDB813" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg class="icon moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 0111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      </span>
+    </label>
+  </div>
+
+  <div class="glass">
+    <h2>Calculadora de Cargas Elétricas</h2>
+    <label>Digite o valor de "a":</label>
+    <input type="number" id="a" step="any" />
+    
+    <label>Digite o valor de "x₃":</label>
+    <input type="number" id="x3" step="any" />
+    
+    <label>Digite o valor de "q₂":</label>
+    <input type="number" id="q2" step="any" />
+
+    <button onclick="calcular()">Calcular</button>
+
+    <div id="erro"></div>
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    function calcular() {
+      const a = parseFloat(document.getElementById("a").value);
+      const x3 = parseFloat(document.getElementById("x3").value);
+      const q2 = parseFloat(document.getElementById("q2").value);
+      const erroDiv = document.getElementById("erro");
+      const resultadoDiv = document.getElementById("resultado");
+
+      erroDiv.textContent = "";
+      resultadoDiv.innerHTML = "";
+
+      if (isNaN(a) || isNaN(x3) || isNaN(q2)) {
+        erroDiv.textContent = "Preencha todos os campos corretamente.";
+        return;
+      }
+
+      if (a <= 0) {
+        erroDiv.textContent = "O valor de 'a' deve ser positivo.";
+        return;
+      }
+
+      if (q2 === 0) {
+        erroDiv.textContent = "q₂ não pode ser zero.";
+        return;
+      }
+
+      if (x3 === a || x3 === -a) {
+        erroDiv.textContent = "x₃ não pode ser igual a +a ou -a.";
+        return;
+      }
+
+      const num = x3 + a;
+      const den = x3 - a;
+      const razao = Math.pow(num / den, 2);
+
+      const latex = `
+        \\[
+        \\frac{q_1}{q_2} = \\left( \\frac{x_3 + a}{x_3 - a} \\right)^2 =
+        \\left( \\frac{${x3} + ${a}}{${x3} - ${a}} \\right)^2 =
+        \\left( \\frac{${num.toFixed(2)}}{${den.toFixed(2)}} \\right)^2 =
+        ${razao.toFixed(4)}
+        \\]
+      `;
+
+      resultadoDiv.innerHTML = latex;
+      MathJax.typeset();
+    }
+
+    document.getElementById("toggle-theme").addEventListener("change", function () {
+      document.body.classList.toggle("dark", this.checked);
+    });
+  </script>
+</body>
+</html>
