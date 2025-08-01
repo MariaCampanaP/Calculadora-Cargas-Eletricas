@@ -50,7 +50,7 @@ Calculadora de Cargas Elétricas é uma aplicação web simples e estilosa que p
 ## ☕︎ Como Usar
 
 1. Clone o repositório para o seu computador:
-
+   
    ```bash
    git clone https://github.com/MariaCampanaP/Calculadora-Cargas-Eletricas.git
    ```
